@@ -1,0 +1,230 @@
+package com.aku.dominion.player;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+
+import com.aku.dominion.DomConstants;
+import com.aku.dominion.Supply;
+import com.aku.dominion.card.Card;
+import com.aku.dominion.card.Type;
+import com.aku.dominion.util.DomLogger;
+import com.aku.dominion.util.SpaceJoiner;
+import com.google.common.collect.Multiset;
+import com.google.common.collect.Multiset.Entry;
+import com.google.common.collect.TreeMultiset;
+
+public class Deck {
+	
+	private static final DomLogger LOG = new DomLogger(); 
+
+	
+    
+	private List<Collection<Card>> allCards;
+	
+	protected List<Card> hand = new LinkedList<>();
+	protected LinkedList<Card> played = new LinkedList<>();
+	protected List<Card> discard = new ArrayList<>();
+	protected LinkedList<Card> drawPile = new LinkedList<>();
+	
+	private DomPlayer player;
+	
+	public Deck(DomPlayer player, Supply supply) {
+		this.player = player;
+		
+		allCards = new ArrayList<>();
+		allCards.add(hand);
+		allCards.add(played);
+		allCards.add(discard);
+		allCards.add(drawPile);
+		
+		initDeck(supply);
+		Collections.shuffle(drawPile);
+	}
+	
+	public void cleanupPhase() {
+		discard.addAll(hand);
+		for(int i = played.size() - 1; i >= 0; i--) {
+			Card card = played.get(i);
+			card.cleanupPhase(player);
+		}
+		discard.addAll(played);
+		hand.clear();
+		played.clear();
+		
+		drawNewHand();
+	}
+
+	public void playCard(int index) {
+		Card card = hand.get(index);
+		hand.remove(index);
+		played.add(card);
+		card.play(player);
+	}
+	
+	protected void initDeck(Supply supply) {
+		for(int i=0; i<DomConstants.START_ESTATE; i++) {
+			// 3 extra estates per player
+			drawPile.add(Card.ESTATE);
+		}
+		for(int i=0; i<DomConstants.START_COPPER; i++) {
+			supply.takeCard(Card.COPPER);
+			drawPile.add(Card.COPPER);
+		}
+	}
+	
+	public void shuffle() {
+		LOG.info("(%s reshuffles.)", player.getName());
+		Collections.shuffle(discard);
+		drawPile.addAll(discard);
+		discard.clear();
+	}
+	
+	public void putDrawPileIntoDiscard() {
+		LOG.info("%s puts draw pile into discard", player.getName());
+		discard.addAll(drawPile);
+		drawPile.clear();
+	}
+	
+	public void drawNewHand() {
+		drawCards(DomConstants.DEFAULT_HAND_SIZE);
+		String handStr = Deck.collectionToStr(hand);
+		LOG.info("(%s draws: %s)" , player.getName(), handStr);
+	}
+	
+	public void revealHand() {
+		String handStr = Deck.collectionToStr(hand);
+		LOG.info("(%s reveals: %s)" , player.getName(), handStr);
+	}
+	
+	protected int moneyInHand() {
+		int money = 0;
+		for(Card card: hand) {
+			money += card.getPlusCoins();
+		}
+		return money;
+	}
+
+	public void drawCards(int numCards) {
+		for(int i=0; i<numCards; i++) {
+			if(drawPile.size() == 0) {
+				shuffle();
+			}	
+			Card card = drawPile.removeFirst();
+			hand.add(card);
+		}
+	}
+
+	
+	/* (non-Javadoc)
+	 * @see com.aku.dominion.player.Player#scoreFromCards()
+	 */
+	public int scoreFromCards() {
+		int score = 0;
+		for(Collection<Card> list: allCards ) {
+			for(Card card: list ) {
+				score += card.getVictoryPoints();
+			}
+		}
+		
+		return score; 
+	}
+	
+	public int getNumInDeck(Card card) {
+		int numCopies = 0;
+		for(Collection<Card> list: allCards ) {
+			numCopies += Collections.frequency(list, card);
+		}
+		return numCopies;
+	}
+	
+	public int getNumInHand(Type type) {
+		int num = 0;
+		for(Card card: hand ) {
+			if(card.isType(type)) {
+				num++;
+			}
+		}
+		return num;
+	}
+		
+	public Multiset<Card> summarizeDeck() {
+		Multiset<Card> bag = TreeMultiset.create();
+		for(Collection<Card> list: allCards ) {
+			bag.addAll(list);
+		}
+		return bag;
+	}
+	
+	@Override
+	public String toString() {
+		StringBuilder str = new StringBuilder();
+
+		Multiset<Card> bag = summarizeDeck();
+		str.append("[");
+		str.append(bag.size());
+		str.append(" cards");
+		str.append("] ");
+		bagToStr(str, bag);
+		
+		/*
+		System.out.print("hand\n");
+		System.out.print(JOINER.join(hand));
+
+		System.out.print("\ndrawPile\n");
+		System.out.print(JOINER.join(drawPile));
+
+		System.out.print("\ndiscard\n");
+		System.out.print(JOINER.join(discard));
+				
+		System.out.print("\nplayed\n");
+		System.out.print(JOINER.join(played));
+		*/
+		
+		return str.toString();
+	}
+
+	public void bagToStr(StringBuilder str, Multiset<Card> bag) {
+		boolean needsSpace = false;
+		for (Entry<Card> entry : bag.entrySet()) {
+			
+			if(needsSpace) {
+				str.append(" ");
+			} else {
+				needsSpace = true;
+			}
+			
+			str.append(entry.getCount());
+			str.append(" ");
+			str.append(entry.getElement());	
+		}
+	}
+	
+	public void returnToTopOfDeck(Card card) {
+		LOG.info("%s returns %s to top of deck" , player.getName(), card);
+		played.removeLastOccurrence(Card.ALCHEMIST);
+		drawPile.addFirst(Card.ALCHEMIST);
+	}
+	
+	public static String collectionToStr(Collection<Card> collection) {
+	   return SpaceJoiner.JOINER.join(collection);
+	}
+
+	public List<Card> getHand() {
+		return hand;
+	}
+
+	public List<Card> getPlayed() {
+		return played;
+	}
+
+	public List<Card> getDiscard() {
+		return discard;
+	}
+
+	public LinkedList<Card> getDrawPile() {
+		return drawPile;
+	}
+}
