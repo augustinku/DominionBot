@@ -6,7 +6,7 @@ import com.aku.dominion.player.DomPlayer;
 
 public class SupplyLessThanCond implements BuyCondition {
 	public boolean execute(DomPlayer player, Supply supply, Card card, int num) {
-		boolean condition = supply.numLeft(card) <= num;
+		boolean condition = supply.count(card) <= num;
 		
 		return condition;
 	}

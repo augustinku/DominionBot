@@ -12,7 +12,10 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.logging.Level;
 
+import com.aku.dominion.card.Card;
 import com.aku.dominion.strategy.BigMoneyUltimate;
+import com.aku.dominion.strategy.BigMoneyX;
+import com.aku.dominion.strategy.NoblesStrategy;
 import com.aku.dominion.strategy.Strategy;
 
 public class Simulator {
@@ -26,6 +29,7 @@ public class Simulator {
 
 		int numThreads = Runtime.getRuntime().availableProcessors();
 		ExecutorService executor = Executors.newFixedThreadPool(numThreads);
+		System.out.println("playing: " + NUM_GAMES_TO_PLAY);
 		System.out.println("starting with threadcount: " + numThreads);
 		for (int i = 0; i < NUM_GAMES_TO_PLAY; i++) {
 			Callable<GameResult> game = new Game(createStrats(), COLONY_GAME,
@@ -85,15 +89,21 @@ public class Simulator {
 
 		List<Strategy> strat = new ArrayList<>();
 		
-	//	strat.add(new BigMoneyMonument()); // the best
-	//	strat.add(new BigMoneyCouncilRoom()); // vs monument 
-    //	strat.add(new BigMoneySmithy()); // vs monument 43/54
-	//	strat.add(new BigMoneyWoodcutter()); // vs monument 32/64
+	//	strat.add(new BigMoneyX(Card.MONUMENT)); // the best
+	//	strat.add(new BigMoneyX(Card.COUNCILROOM)); // vs monument
+    	strat.add(new BigMoneyX(Card.SMITHY)); // vs monument 43/54
+		strat.add(new NoblesStrategy());
+
+	//	strat.add(new BigMoneyX(Card.WOODCUTTER)); // vs monument 32/64
 	//	strat.add(new BigMoneyAlchemist()); // vs BigMoneyWoodcutter 23/70, vs lab 55/38
-	//	strat.add(new BigMoneyLaboratory());  // vs monument 12/85
+	//	strat.add(new BigMoneyX(Card.LABORATORY));  // vs monument 12/85
 		
-		strat.add(new BigMoneyUltimate()); // vs monument 12/85
-//		strat.add(new BigMoneyBureaucrat()); 
+
+			
+//		strat.add(new BigMoneyX(Card.CHANCELLOR));
+//		strat.add(new BigMoneyUltimate()); // vs monument 12/85
+		//strat.add(new BigMoneyX(Card.BUREAUCRAT));
+		//strat.add(new BigMoneyBureaucrat()); 
 		// strat.add(new BigMoneyCanonical());
 		
 		return strat;

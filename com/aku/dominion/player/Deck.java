@@ -3,8 +3,10 @@ package com.aku.dominion.player;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import com.aku.dominion.DomConstants;
 import com.aku.dominion.Supply;
@@ -20,8 +22,6 @@ public class Deck {
 	
 	private static final DomLogger LOG = new DomLogger(); 
 
-	
-    
 	private List<Collection<Card>> allCards;
 	
 	protected List<Card> hand = new LinkedList<>();
@@ -70,7 +70,7 @@ public class Deck {
 			drawPile.add(Card.ESTATE);
 		}
 		for(int i=0; i<DomConstants.START_COPPER; i++) {
-			supply.takeCard(Card.COPPER);
+			supply.remove(Card.COPPER);
 			drawPile.add(Card.COPPER);
 		}
 	}
@@ -122,16 +122,50 @@ public class Deck {
 	 * @see com.aku.dominion.player.Player#scoreFromCards()
 	 */
 	public int scoreFromCards() {
-		int score = 0;
+		int total = 0;
 		for(Collection<Card> list: allCards ) {
 			for(Card card: list ) {
-				score += card.getVictoryPoints();
+				if(card.isType(Type.VICTORY)) {
+					int score =  card.getVictoryPoints();
+					if(score == 0) {
+						card.getVictoryPoints(this);
+					}
+					total += score;
+				}
 			}
 		}
 		
-		return score; 
+		return total; 
 	}
+
+
+	// you can't just add up all the uniques in each list,
+	// since there might be duplicates
+	public int getNumUniqueInDeck() {		
+		Set<Card> set = new HashSet<Card>();
+		for(Collection<Card> list: allCards ) {
+			for(Card card: list ) {
+				set.add(card);
+			}
+		}
+		
+		return set.size(); 
+	}
+
 	
+	public int getNumInDeck(Type type) {		
+		int num = 0;
+		for(Collection<Card> list: allCards ) {
+			for(Card card: list ) {
+				if(card.isType(type)) {
+					num++;
+				}
+			}
+		}
+		
+		return num; 
+	}
+		
 	public int getNumInDeck(Card card) {
 		int numCopies = 0;
 		for(Collection<Card> list: allCards ) {
@@ -139,6 +173,15 @@ public class Deck {
 		}
 		return numCopies;
 	}
+	
+	public int getNumInDeck() {
+		int count = 0;
+		for(Collection<Card> list: allCards ) {
+			count += list.size();
+		}
+		return count;
+	}
+	
 	
 	public int getNumInHand(Type type) {
 		int num = 0;

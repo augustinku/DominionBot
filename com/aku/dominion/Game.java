@@ -9,7 +9,7 @@ import com.aku.dominion.card.Card;
 import com.aku.dominion.player.Deck;
 import com.aku.dominion.player.DomPlayer;
 import com.aku.dominion.strategy.BigMoneyUltimate;
-import com.aku.dominion.strategy.BigMoneyX;
+import com.aku.dominion.strategy.NoblesStrategy;
 import com.aku.dominion.strategy.Strategy;
 import com.aku.dominion.util.DomLogger;
 import com.aku.dominion.util.SpaceJoiner;
@@ -147,10 +147,10 @@ public class Game implements Callable<GameResult> {
 			String emptyPiles = Deck.collectionToStr(list);
 			LOG.info("\n%s are all gone.\n", emptyPiles);
 			continueGame = false;
-		} else if(supply.numLeft(Card.PROVINCE) == 0 ) {
+		} else if(supply.count(Card.PROVINCE) == 0 ) {
 			LOG.info("\nAll provinces are gone.\n");
 			continueGame = false;
-		} else if(isColonyGame && supply.numLeft(Card.COLONY) == 0) {
+		} else if(isColonyGame && supply.count(Card.COLONY) == 0) {
 			LOG.info("\nAll colonies are gone.\n");
 			continueGame = false;
 		}		
@@ -161,17 +161,13 @@ public class Game implements Callable<GameResult> {
 	public static void main(String[] args) {
 		
 		List<Strategy> strat = new ArrayList<>();
-//		strat.add(new WitchStrategy());
-		
-		strat.add(new BigMoneyX(Card.CHANCELLOR, 1 ));
-//		strat.add(new BigMoneyBureaucrat());
-//		strat.add(new BigMoneyCouncilRoom());		
-//		strat.add(new BigMoneySmithy());
-//		strat.add(new BigMoneyAlchemist());	
-//		strat.add(new BigMoneyLaboratory());
-//		strat.add(new BigMoneyWoodcutter());
+
+		// strat.add(new BigMoneyX(Card.CHANCELLOR));
+		// strat.add(new BigMoneyUltimate());
 		strat.add(new BigMoneyUltimate());
+		strat.add(new NoblesStrategy());
 		//strat.add(new BigMoneyCanonical());
+		//strat.add(new WitchStrategy());
 		
 		boolean colonyGame = false;
 		Game game = new Game(strat, colonyGame, Level.INFO);

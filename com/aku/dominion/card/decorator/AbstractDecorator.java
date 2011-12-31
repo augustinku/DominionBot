@@ -1,5 +1,6 @@
 package com.aku.dominion.card.decorator;
 
+import com.aku.dominion.player.Deck;
 import com.aku.dominion.player.DomPlayer;
 
 public class AbstractDecorator implements DecoratorInterface {
@@ -13,5 +14,9 @@ public class AbstractDecorator implements DecoratorInterface {
 	}
 	
 	public void cleanupPhase(DomPlayer player) {
+	}
+	
+	public int getVictoryPoints(Deck deck) {
+		return 0;
 	}
 }

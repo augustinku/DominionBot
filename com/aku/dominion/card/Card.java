@@ -11,9 +11,16 @@ import com.aku.dominion.card.decorator.Bureaucrat;
 import com.aku.dominion.card.decorator.Chancellor;
 import com.aku.dominion.card.decorator.CouncilRoom;
 import com.aku.dominion.card.decorator.DecoratorInterface;
+import com.aku.dominion.card.decorator.Duke;
+import com.aku.dominion.card.decorator.Fairgrounds;
 import com.aku.dominion.card.decorator.Familiar;
+import com.aku.dominion.card.decorator.Gardens;
 import com.aku.dominion.card.decorator.Montebank;
+import com.aku.dominion.card.decorator.Nobles;
+import com.aku.dominion.card.decorator.SilkRoad;
+import com.aku.dominion.card.decorator.Vineyard;
 import com.aku.dominion.card.decorator.Witch;
+import com.aku.dominion.player.Deck;
 import com.aku.dominion.player.DomPlayer;
 
 public enum Card {
@@ -34,6 +41,18 @@ public enum Card {
     POTION   (4, 0, 0, 1, 0, 0, 0, 0, 0, "Potion", null, new Type[]{TREASURE} ),
     
     // kingdom cards
+    GARDENS        (4, 0, 0, 0, 0, 0, 0, 0, 0, "Gardens", new Gardens(), new Type[]{KINGDOM, VICTORY}),
+    SILK_ROAD      (4, 0, 0, 0, 0, 0, 0, 0, 0, "Silk_Road", new SilkRoad(), new Type[]{KINGDOM, VICTORY}),
+    VINEYARD       (0, 1, 0, 0, 0, 0, 0, 0, 0, "Vineyard", new Vineyard(), new Type[]{KINGDOM, VICTORY}),
+    FAIRGROUNDS    (6, 0, 0, 0, 0, 0, 0, 0, 0, "Fairgrounds", new Fairgrounds(), new Type[]{KINGDOM, VICTORY}),
+    DUKE           (5, 0, 0, 0, 0, 0, 0, 0, 0, "Duke", new Duke(), new Type[]{KINGDOM, VICTORY}),
+// ISLAND    
+//    FARMLAND       (6, 0, 0, 0, 2, 0, 0, 0, 0, "Farmland", new Farmland(), new Type[]{KINGDOM, VICTORY}),
+ //   TUNNEL         (3, 0, 0, 0, 2, 0, 0, 0, 0, "Tunnel", new Tunnel(), new Type[]{KINGDOM, VICTORY, REACTION}),
+    NOBLES         (6, 0, 0, 0, 2, 0, 0, 0, 0, "Nobles", new Nobles(), new Type[]{KINGDOM, VICTORY, ACTION}),
+    GREAT_HALL     (3, 0, 0, 0, 1, 1, 1, 0, 0, "Great Hall", null, new Type[]{KINGDOM, VICTORY, ACTION}),
+    HAREM          (6, 0, 2, 0, 2, 0, 0, 0, 0, "Harem", null, new Type[]{KINGDOM, VICTORY, TREASURE}),
+    
     SMITHY         (4, 0, 0, 0, 0, 0, 3, 0, 0, "Smithy", null, new Type[]{KINGDOM, ACTION}),
     COUNCIL_ROOM   (5, 0, 0, 0, 0, 0, 4, 1, 0, "Council Room", new CouncilRoom(), new Type[]{KINGDOM, ACTION}),
     MARGRAVE       (5, 0, 0, 0, 0, 0, 3, 0, 0, "Margrave", null, new Type[]{KINGDOM, ACTION, ATTACK}),
@@ -47,12 +66,12 @@ public enum Card {
     ALCHEMIST      (3, 1, 0, 0, 0, 1, 2, 0, 0, "Alchemist", new Alchemist(), new Type[]{KINGDOM, ACTION}),
     WOODCUTTER     (3, 0, 2, 0, 0, 0, 0, 1, 0, "Woodcutter", null, new Type[]{KINGDOM, ACTION}),
     CHANCELLOR     (3, 0, 2, 0, 0, 0, 0, 0, 0, "Chancellor", new Chancellor(), new Type[]{KINGDOM, ACTION}),
- //   GARDENS        (4, 0, 0, 0, 0, 0, 0, 0, 0, "Gardens", new Gardens(), new Type[]{KINGDOM, VICTORY}),
     WITCH          (5, 0, 0, 0, 0, 0, 2, 0, 0, "Witch", new Witch(), new Type[]{KINGDOM, ACTION, ATTACK}),
+//    SEA_HAG        (4, 0, 0, 0, 0, 0, 0, 0, 0, "Sea Hag", new SeaHag(), new Type[]{KINGDOM, ACTION, ATTACK}),
 	FAMILIAR       (3, 1, 0, 0, 0, 1, 1, 0, 0, "Familiar", new Familiar(), new Type[]{KINGDOM, ACTION, ATTACK}),
 	MONTEBANK      (5, 0, 2, 0, 0, 0, 0, 0, 0, "Montebank", new Montebank(), new Type[]{KINGDOM, ACTION, ATTACK}),
 	BUREAUCRAT     (4, 0, 0, 0, 0, 0, 0, 0, 0, "Bureaucrat", new Bureaucrat(), new Type[]{KINGDOM, ACTION, ATTACK});
-	
+	 
 	private int cost;
 	private int potionCost; // usually 1 or 0
 	private int victoryPoints;
@@ -167,6 +186,10 @@ public enum Card {
 	}
 
 
+	public int getVictoryPoints(Deck deck) {
+		return decorator.getVictoryPoints(deck);
+	}
+	
 	/* (non-Javadoc)
 	 * @see com.aku.dominion.cards.Cardss#getPlusActions()
 	 */

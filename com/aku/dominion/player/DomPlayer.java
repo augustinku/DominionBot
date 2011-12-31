@@ -18,17 +18,17 @@ public class DomPlayer {
 
 	private static final DomLogger LOG = new DomLogger();
 
-	protected Deck deck;
-	protected Strategy strategy;
-	protected List<TurnSummary> turns;
-	protected Game game;
-	protected int numVPs;
+	private Deck deck;
+	private Strategy strategy;
+	private List<TurnSummary> turns;
+	private Game game;
+	private int numVPs;
 
 	// need to be reset every turn
-	protected int numActions;
-	protected int numCoins;
-	protected int numPotions;
-	protected int numBuys;
+	private int numActions;
+	private int numCoins;
+	private int numPotions;
+	private int numBuys;
 
 	public DomPlayer(Game game, Strategy strategy) {
 		this.game = game;
@@ -51,22 +51,32 @@ public class DomPlayer {
 	}
 
 	protected void actionPhase() {
-		// play cards that give you more actions
+		
 		List<Card> hand = deck.getHand();
+	
+		// play cards that give you more actions
 		for (int i = hand.size() - 1; i >= 0; i--) {
 			Card card = hand.get(i);
-			int cardActions = card.getPlusActions();
-			if (cardActions > 0) {
+			int plusActions = card.getPlusActions();
+			if (plusActions > 0) {
 				playAction(i);
 			}
 		}
-
-		// play terminal actions
-		for (int i = hand.size() - 1; i >= 0 && numActions > 0; i--) {
-			Card card = hand.get(i);
-			if (card.isType(Type.ACTION)) {
-				playAction(i);
+		
+		
+		while(numActions > 0 && deck.getNumInHand(Type.ACTION) > 0 ) { 
+	
+			// play terminal actions
+			// it may discard the whole hand
+			int index = 0;
+			for (int i = hand.size() - 1; i >= 0 && numActions > 0; i--) {
+				Card card = hand.get(i);
+				if (card.isType(Type.ACTION)) {
+					index = i;
+					break;
+				}
 			}
+			playAction(index);
 		}
 	}
 
@@ -111,7 +121,7 @@ public class DomPlayer {
 		if (card != null) {
 			Supply supply = game.getSupply();
 			if (supply.has(card)) {
-				supply.takeCard(card);
+				supply.remove(card);
 				deck.discard.add(card);
 				if (log)
 					LOG.info("%s gains: %s", getName(), card);
@@ -126,7 +136,7 @@ public class DomPlayer {
 		if (card != null) {
 			Supply supply = game.getSupply();
 			if (supply.has(card)) {
-				supply.takeCard(card);
+				supply.remove(card);
 				deck.drawPile.addFirst(card);
 				LOG.info("%s gains: %s", getName(), card);
 			} else {
@@ -173,12 +183,13 @@ public class DomPlayer {
 	}
 
 	private void playAction(int index) {
+		numActions--;
+		
 		List<Card> hand = deck.getHand();
 		Card card = hand.get(index);
 		LOG.info("%s plays %s", getName(), card);
 		deck.playCard(index);
-		numActions--;
-
+		
 		game.actionToOpponents(card);
 	}
 
@@ -282,4 +293,27 @@ public class DomPlayer {
 	public Deck getDeck() {
 		return deck;
 	}
+
+	public int getNumVPs() {
+		return numVPs;
+	}
+	
+	public int getNumActions() {
+		return numActions;
+	}
+
+	public int getNumCoins() {
+		return numCoins;
+	}
+
+	public int getNumPotions() {
+		return numPotions;
+	}
+
+	public int getNumBuys() {
+		return numBuys;
+	}
+	
+	
+	
 }
