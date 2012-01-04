@@ -28,6 +28,7 @@ public class Deck {
 	protected LinkedList<Card> played = new LinkedList<>();
 	protected List<Card> discard = new ArrayList<>();
 	protected LinkedList<Card> drawPile = new LinkedList<>();
+	protected List<Card> revealed = new LinkedList<>();
 	
 	private DomPlayer player;
 	
@@ -35,13 +36,135 @@ public class Deck {
 		this.player = player;
 		
 		allCards = new ArrayList<>();
-		allCards.add(hand);
-		allCards.add(played);
-		allCards.add(discard);
-		allCards.add(drawPile);
+		for(DeckArea deckArea: DeckArea.values()) {
+			allCards.add(toCollection(deckArea));
+		}
 		
 		initDeck(supply);
 		Collections.shuffle(drawPile);
+	}
+	
+	private Collection<Card> toCollection(DeckArea deckArea) {
+		Collection<Card> collection = null;
+		switch (deckArea) {
+		case HAND:
+			collection = hand;
+			break;
+		case PLAYED:
+			collection = played;
+			break;
+		case DISCARD:
+			collection = discard;
+			break;
+		case DRAW_PILE:
+			collection = drawPile;
+			break;
+		case REVEALED:
+			collection = revealed;
+			break;
+		default:
+			throw new IllegalArgumentException("deckArea not supported: "
+					+ deckArea);
+		}
+		return collection;
+	}
+	
+	public Card revealTopCard() {
+		Card card = null;
+		if(drawPile.size() == 0) shuffle();
+		if(drawPile.size() > 0) {
+			card = drawPile.remove(0);
+			revealed.add(card);
+		}
+			
+		return card;	
+	}
+	
+	/**
+	 * 
+	 * @param type
+	 * @param numOfThatType
+	 * @param excluding
+	 * @return
+	 */
+	public List<Card> revealUntil(Type type, int numOfThatType, Card excluding) {
+		
+		List<Card> list = new ArrayList<>();
+		Card card = null;
+		while(numOfThatType > 0 && (card = revealTopCard()) != null ) {
+			if( excluding != null && excluding.equals(card)) {
+				continue;
+			}
+			
+			if(card.isType(type)) {
+				numOfThatType--;
+				list.add(card);
+			}
+		}
+		
+		String revealedStr = Deck.collectionToStr(revealed);
+		LOG.info("... revealing %s" , revealedStr);
+		
+		return list;
+	}
+
+	
+	public List<Card> revealUntil(Type type, int numOfThatType) {
+		return revealUntil(type, numOfThatType, null);
+	}	
+	
+	public List<Card> revealUntilNot(Type type) {
+		
+		List<Card> list = new ArrayList<>();
+		Card card = null;
+		while((card = revealTopCard()) != null ) {
+			list.add(card);
+			if(!card.equals(type)) {
+				break;
+			} 	
+		}
+		
+		String revealedStr = Deck.collectionToStr(revealed);
+		LOG.info("%s reveals: %s" , player.getName(), revealedStr);
+		
+		return list;
+	}
+
+	
+	public List<Card> revealUntil(int num) {
+		
+		List<Card> list = new ArrayList<>();
+		for(int i=0; i<num; i++) {
+			Card card = revealTopCard();
+			list.add(card);
+		}			
+		String revealedStr = Deck.collectionToStr(revealed);
+		LOG.info("%s reveals: %s" , player.getName(), revealedStr);
+		return list;
+	}
+	
+
+	public void move(DeckArea src, DeckArea dest) {
+		Collection<Card> srcCollection = toCollection(src);
+		if (srcCollection.size() > 0) {
+			toCollection(dest).addAll(srcCollection);
+			srcCollection.clear();
+			LOG.info("... putting %s into %s", src.getName(), dest.getName());
+		}
+	}	
+	
+	public void move(DeckArea src, DeckArea dest, Card card) {
+		if(card != null) { 
+			toCollection(src).remove(card);
+			toCollection(dest).add(card);
+			LOG.info("... putting %s into %s", card, dest.getName());
+		}
+	}
+	
+	public void move(DeckArea src, DeckArea dest, Collection<Card> collection) {
+		for(Card card: collection) {
+			move(src, dest, card);
+		}
 	}
 	
 	public void cleanupPhase() {
@@ -76,18 +199,14 @@ public class Deck {
 	}
 	
 	public void shuffle() {
-		LOG.info("(%s reshuffles.)", player.getName());
-		Collections.shuffle(discard);
-		drawPile.addAll(discard);
-		discard.clear();
+		if (discard.size() > 0) {
+			LOG.info("(%s reshuffles.)", player.getName());
+			Collections.shuffle(discard);
+			drawPile.addAll(discard);
+			discard.clear();
+		}
 	}
-	
-	public void putDrawPileIntoDiscard() {
-		LOG.info("%s puts draw pile into discard", player.getName());
-		discard.addAll(drawPile);
-		drawPile.clear();
-	}
-	
+		
 	public void drawNewHand() {
 		drawCards(DomConstants.DEFAULT_HAND_SIZE);
 		String handStr = Deck.collectionToStr(hand);
@@ -112,8 +231,11 @@ public class Deck {
 			if(drawPile.size() == 0) {
 				shuffle();
 			}	
-			Card card = drawPile.removeFirst();
-			hand.add(card);
+			
+			if(drawPile.size() > 0) {
+				Card card = drawPile.removeFirst();
+				hand.add(card);
+			}
 		}
 	}
 
@@ -201,6 +323,12 @@ public class Deck {
 		return bag;
 	}
 	
+	public void returnToTopOfDeck(Card card) {
+		LOG.info("%s returns %s to top of deck" , player.getName(), card);
+		played.removeLastOccurrence(Card.ALCHEMIST);
+		drawPile.addFirst(Card.ALCHEMIST);
+	}
+	
 	@Override
 	public String toString() {
 		StringBuilder str = new StringBuilder();
@@ -245,12 +373,6 @@ public class Deck {
 		}
 	}
 	
-	public void returnToTopOfDeck(Card card) {
-		LOG.info("%s returns %s to top of deck" , player.getName(), card);
-		played.removeLastOccurrence(Card.ALCHEMIST);
-		drawPile.addFirst(Card.ALCHEMIST);
-	}
-	
 	public static String collectionToStr(Collection<Card> collection) {
 	   return SpaceJoiner.JOINER.join(collection);
 	}
@@ -269,5 +391,9 @@ public class Deck {
 
 	public LinkedList<Card> getDrawPile() {
 		return drawPile;
+	}
+	
+	public List<Card> getRevealed() {
+		return revealed;
 	}
 }

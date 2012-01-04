@@ -6,7 +6,9 @@ import static com.aku.dominion.card.Type.KINGDOM;
 import static com.aku.dominion.card.Type.TREASURE;
 import static com.aku.dominion.card.Type.VICTORY;
 
+import com.aku.dominion.card.decorator.Adventurer;
 import com.aku.dominion.card.decorator.Alchemist;
+import com.aku.dominion.card.decorator.Apothecary;
 import com.aku.dominion.card.decorator.Bureaucrat;
 import com.aku.dominion.card.decorator.Chancellor;
 import com.aku.dominion.card.decorator.CouncilRoom;
@@ -15,9 +17,13 @@ import com.aku.dominion.card.decorator.Duke;
 import com.aku.dominion.card.decorator.Fairgrounds;
 import com.aku.dominion.card.decorator.Familiar;
 import com.aku.dominion.card.decorator.Gardens;
+import com.aku.dominion.card.decorator.Golem;
+import com.aku.dominion.card.decorator.Loan;
 import com.aku.dominion.card.decorator.Montebank;
 import com.aku.dominion.card.decorator.Nobles;
+import com.aku.dominion.card.decorator.ScryingPool;
 import com.aku.dominion.card.decorator.SilkRoad;
+import com.aku.dominion.card.decorator.Venture;
 import com.aku.dominion.card.decorator.Vineyard;
 import com.aku.dominion.card.decorator.Witch;
 import com.aku.dominion.player.Deck;
@@ -46,13 +52,22 @@ public enum Card {
     VINEYARD       (0, 1, 0, 0, 0, 0, 0, 0, 0, "Vineyard", new Vineyard(), new Type[]{KINGDOM, VICTORY}),
     FAIRGROUNDS    (6, 0, 0, 0, 0, 0, 0, 0, 0, "Fairgrounds", new Fairgrounds(), new Type[]{KINGDOM, VICTORY}),
     DUKE           (5, 0, 0, 0, 0, 0, 0, 0, 0, "Duke", new Duke(), new Type[]{KINGDOM, VICTORY}),
-// ISLAND    
-//    FARMLAND       (6, 0, 0, 0, 2, 0, 0, 0, 0, "Farmland", new Farmland(), new Type[]{KINGDOM, VICTORY}),
- //   TUNNEL         (3, 0, 0, 0, 2, 0, 0, 0, 0, "Tunnel", new Tunnel(), new Type[]{KINGDOM, VICTORY, REACTION}),
+//  ISLAND          TODO
+//  FARMLAND       (6, 0, 0, 0, 2, 0, 0, 0, 0, "Farmland", new Farmland(), new Type[]{KINGDOM, VICTORY}),
+//  TUNNEL         (3, 0, 0, 0, 2, 0, 0, 0, 0, "Tunnel", new Tunnel(), new Type[]{KINGDOM, VICTORY, REACTION}),
     NOBLES         (6, 0, 0, 0, 2, 0, 0, 0, 0, "Nobles", new Nobles(), new Type[]{KINGDOM, VICTORY, ACTION}),
     GREAT_HALL     (3, 0, 0, 0, 1, 1, 1, 0, 0, "Great Hall", null, new Type[]{KINGDOM, VICTORY, ACTION}),
     HAREM          (6, 0, 2, 0, 2, 0, 0, 0, 0, "Harem", null, new Type[]{KINGDOM, VICTORY, TREASURE}),
     
+	ADVENTURER     (6, 0, 0, 0, 0, 0, 0, 0, 0, "Adventurer", new Adventurer(), new Type[]{KINGDOM, ACTION}),
+	GOLEM          (4, 1, 0, 0, 0, 0, 0, 0, 0, "Golem", new Golem(), new Type[]{KINGDOM, ACTION}),
+	LOAN           (3, 0, 1, 0, 0, 0, 0, 0, 0, "Loan", new Loan(), new Type[]{KINGDOM, TREASURE}),
+	VENTURE        (5, 0, 2, 0, 0, 0, 0, 0, 0, "Venture", new Venture(), new Type[]{KINGDOM, TREASURE}),
+	SCRYING_POOL   (2, 1, 0, 0, 0, 0, 0, 0, 0, "Scrying Pool", new ScryingPool(), new Type[]{KINGDOM, ACTION}),
+	APOTHECARY     (2, 1, 0, 0, 0, 0, 0, 0, 0, "Apothecary", new Apothecary(), new Type[]{KINGDOM, ACTION}),
+//	THIEF          (4, 0, 0, 0, 0, 0, 0, 0, 0, "Thief", new Thief(), new Type[]{KINGDOM, ACTION, ATTACK}),
+	
+	
     SMITHY         (4, 0, 0, 0, 0, 0, 3, 0, 0, "Smithy", null, new Type[]{KINGDOM, ACTION}),
     COUNCIL_ROOM   (5, 0, 0, 0, 0, 0, 4, 1, 0, "Council Room", new CouncilRoom(), new Type[]{KINGDOM, ACTION}),
     MARGRAVE       (5, 0, 0, 0, 0, 0, 3, 0, 0, "Margrave", null, new Type[]{KINGDOM, ACTION, ATTACK}),

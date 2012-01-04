@@ -81,24 +81,46 @@ public class DomPlayer {
 	}
 
 	private void treasurePhase() {
+		playBaseTreasures();
+		
+		while( deck.getNumInHand(Type.TREASURE) > 0 ) {
+			playKingdomTreasures();
+		}
+	}
+
+	private void playBaseTreasures() {
 		List<Card> hand = deck.getHand();
 
 		Multiset<Card> bag = TreeMultiset.create();
 		for (int i = hand.size() - 1; i >= 0; i--) {
 			Card card = hand.get(i);
-			if (card.isType(Type.TREASURE)) {
+			if (card.isType(Type.TREASURE) && !card.isType(Type.KINGDOM)) {
 				numCoins += card.getPlusCoins();
 				numPotions += card.getPlusPotions();
-				//deck.playCard(i);
+				hand.remove(i);
+				deck.getDiscard().add(card);
+	//			deck.playCard(i);
 				bag.add(card);
 			}
 		}
 
+		// create a one line log entry for all of the treasures played
 		StringBuilder str = new StringBuilder();
 		deck.bagToStr(str, bag);
 		LOG.info("%s plays %s ", getName(), str);
 	}
 
+	private void playKingdomTreasures() {
+		List<Card> hand = deck.getHand();
+		for (int i = hand.size() - 1; i >= 0; i--) {
+			Card card = hand.get(i);
+			if (card.isType(Type.TREASURE)) {
+				playCard(i);
+			}
+		}
+	}
+
+	
 	private void buyPhase() {
 		Supply supply = game.getSupply();
 		for (int i = 0; i < numBuys; i++) {
@@ -184,26 +206,18 @@ public class DomPlayer {
 
 	private void playAction(int index) {
 		numActions--;
-		
+		Card card = playCard(index);
+		game.actionToOpponents(card);
+	}
+
+	private Card playCard(int index) {
 		List<Card> hand = deck.getHand();
 		Card card = hand.get(index);
 		LOG.info("%s plays %s", getName(), card);
 		deck.playCard(index);
-		
-		game.actionToOpponents(card);
+		return card;
 	}
-
-	public void drawCards(int numCards) {
-		if (numCards > 0) {
-			LOG.info("%s draws %d cards", getName(), numCards);
-			deck.drawCards(numCards);
-		}
-	}
-
-	public int getNumInDeck(Card myCard) {
-		return deck.getNumInDeck(myCard);
-	}
-
+	
 	private void initPhase() {
 		numActions = 1;
 		numBuys = 1;
@@ -215,6 +229,14 @@ public class DomPlayer {
 		}
 	}
 
+	public void drawCards(int numCards) {
+		if (numCards > 0) {
+			LOG.info("... drawing %d cards", numCards);
+			deck.drawCards(numCards);
+		}
+	}
+
+	
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -250,34 +272,35 @@ public class DomPlayer {
 
 	public void addVPs(int numVPs) {
 		if (numVPs != 0) {
-			LOG.info("%s + %d VPs", getName(), numVPs);
+			LOG.info("... getting +%d VPs", numVPs);
 			this.numVPs += numVPs;
 		}
 	}
 
 	public void addBuy(int numBuys) {
 		if (numBuys != 0) {
-			LOG.info("%s + %d buys", getName(), numBuys);
+			LOG.info("... getting +%d buys", numBuys);
 			this.numBuys += numBuys;
 		}
 	}
 
 	public void addPotion(int numPotions) {
 		if (numPotions != 0) {
+			LOG.info("... getting +%d potions", numPotions);
 			this.numPotions += numPotions;
 		}
 	}
 
 	public void addCoin(int numCoins) {
 		if (numCoins != 0) {
-			LOG.info("%s + %d coins", getName(), numCoins);
+			LOG.info("... getting +%d coins", numCoins);
 			this.numCoins += numCoins;
 		}
 	}
 
 	public void addAction(int numActions) {
 		if (numActions != 0) {
-			LOG.info("%s + %d actions", getName(), numActions);
+			LOG.info("... getting +%d actions", numActions);
 			this.numActions += numActions;
 		}
 	}
@@ -313,7 +336,10 @@ public class DomPlayer {
 	public int getNumBuys() {
 		return numBuys;
 	}
-	
+
+	public Game getGame() {
+		return game;
+	}
 	
 	
 }

@@ -9,7 +9,7 @@ import com.aku.dominion.card.Card;
 import com.aku.dominion.player.Deck;
 import com.aku.dominion.player.DomPlayer;
 import com.aku.dominion.strategy.BigMoneyUltimate;
-import com.aku.dominion.strategy.NoblesStrategy;
+import com.aku.dominion.strategy.PotionStrategy;
 import com.aku.dominion.strategy.Strategy;
 import com.aku.dominion.util.DomLogger;
 import com.aku.dominion.util.SpaceJoiner;
@@ -22,7 +22,7 @@ public class Game implements Callable<GameResult> {
 	
 	private List<DomPlayer> players;
 	private Supply supply;
-//	private Trash trash = new Trash(); // currently unused
+	private Trash trash = new Trash();
 	
 	private int numPilesToEndGame;
 	private boolean isColonyGame;
@@ -119,6 +119,8 @@ public class Game implements Callable<GameResult> {
 		for(int i=0; i<players.size(); i++) {
 			LOG.info(players.get(i).toString());
 		} 
+		
+		LOG.info(trash.toString());
 	}
 	
 	public void actionToOpponents(Card card) {
@@ -165,7 +167,8 @@ public class Game implements Callable<GameResult> {
 		// strat.add(new BigMoneyX(Card.CHANCELLOR));
 		// strat.add(new BigMoneyUltimate());
 		strat.add(new BigMoneyUltimate());
-		strat.add(new NoblesStrategy());
+		strat.add(new PotionStrategy());
+	//	strat.add(new VentureLoanSmithy());
 		//strat.add(new BigMoneyCanonical());
 		//strat.add(new WitchStrategy());
 		
@@ -180,5 +183,13 @@ public class Game implements Callable<GameResult> {
 
 	public void setSupply(Supply supply) {
 		this.supply = supply;
-	}	
+	}
+
+	public Trash getTrash() {
+		return trash;
+	}
+
+	public void setTrash(Trash trash) {
+		this.trash = trash;
+	}		
 }

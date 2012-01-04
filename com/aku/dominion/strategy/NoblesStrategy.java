@@ -4,7 +4,6 @@ import static com.aku.dominion.card.Card.DUCHY;
 import static com.aku.dominion.card.Card.ESTATE;
 import static com.aku.dominion.card.Card.GOLD;
 import static com.aku.dominion.card.Card.NOBLES;
-import static com.aku.dominion.card.Card.POTION;
 import static com.aku.dominion.card.Card.PROVINCE;
 import static com.aku.dominion.card.Card.SILVER;
 
@@ -49,5 +48,4 @@ public class NoblesStrategy extends AbstractStrategy {
 	
 	public void addOtherBuyRules() {
 	}
-	
 }

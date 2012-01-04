@@ -6,7 +6,7 @@ import com.aku.dominion.player.DomPlayer;
 
 public class DeckMaxCond implements BuyCondition {
 	public boolean execute(DomPlayer player, Supply supply, Card card, int num) {
-		boolean condition = player.getNumInDeck(card) < num;
+		boolean condition = player.getDeck().getNumInDeck(card) < num;
 		
 		return condition;
 	}

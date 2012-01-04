@@ -16,7 +16,7 @@ public class Trash {
 	
 	@Override
 	public String toString() {
-		StringBuilder str = new StringBuilder("Trash: \n");
+		StringBuilder str = new StringBuilder("Trash: ");
 		for ( Multiset.Entry<Card> entry : cards.entrySet()) {
 			str.append( entry.getElement());
 			str.append( " " );
